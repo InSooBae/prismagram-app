@@ -42,11 +42,11 @@ export default ({ navigation }) => {
       } = await requestSecretMutation();
       if (requestSecret) {
         Alert.alert('Check Your Email');
-        navigation.navigate('Confirm');
+        navigation.navigate('Confirm', { email: value });
         return;
       } else {
         Alert.alert('Account not Found');
-        navigation.navigate('SignUp');
+        navigation.navigate('SignUp', { email: value });
       }
     } catch (e) {
       Alert.alert("Can't Log In Now!");

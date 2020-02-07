@@ -21,9 +21,9 @@ SignMeUp: {
 const AuthNavigation = createStackNavigator(
   {
     Login,
+    Confirm,
     AuthHome,
-    SignUp,
-    Confirm
+    SignUp
   },
   {
     headerMode: 'none'
