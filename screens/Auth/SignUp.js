@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { useMutation } from '@apollo/react-hooks';
+import * as Facebook from 'expo-facebook';
+import * as Google from 'expo-google-app-auth';
 import AuthButton from '../../components/AuthButton';
 import { CREATE_ACCOUNT } from './AuthQueries';
 import AuthInput from '../../components/AuthInput';
 import useInput from '../../hooks/useInput';
-import * as Facebook from 'expo-facebook';
 
 const View = styled.View`
   justify-content: center;
@@ -22,6 +23,10 @@ const FBContainer = styled.View`
   border-top-width: 1px;
   border-color: ${props => props.theme.lightGreyColor};
   border-style: solid;
+`;
+
+const GoogleContainer = styled.View`
+  margin-top: 20px;
 `;
 
 export default ({ navigation }) => {
@@ -89,12 +94,7 @@ export default ({ navigation }) => {
         );
         //fetch는 결과물로 json도 전달해줌.
         const { email, first_name, last_name, name } = await response.json();
-        if (email !== undefined) {
-          emailInput.setValue(email);
-        }
-        fNameInput.setValue(first_name);
-        lNameInput.setValue(last_name);
-        userNameInput.setValue(email.split('@')[0]);
+        updateFormData(email, first_name, last_name);
         setLoading(false);
         console.log(email, first_name, last_name);
 
@@ -106,6 +106,40 @@ export default ({ navigation }) => {
       alert(`Facebook Login Error: ${message}`);
     }
     setLoading(false);
+  };
+
+  const googleLogin = async () => {
+    const GOOGLE_ID =
+      '336734318969-6pb7e9d4tctqj21sk42001tdgmi04245.apps.googleusercontent.com';
+    try {
+      const result = await Google.logInAsync({
+        iosClientId: GOOGLE_ID,
+        scopes: ['profile', 'email']
+      });
+      console.log(result);
+      if (result.type === 'success') {
+        const user = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+          headers: { Authorization: `Bearer ${result.accessToken}` }
+        });
+        const { email, family_name, given_name } = await user.json();
+        updateFormData(email, given_name, family_name);
+      } else {
+        return { cancelled: true };
+      }
+    } catch (e) {
+      return { error: true };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateFormData = (email, firstName, lastName) => {
+    if (email !== undefined) {
+      emailInput.setValue(email);
+    }
+    fNameInput.setValue(firstName);
+    lNameInput.setValue(lastName);
+    userNameInput.setValue(email.split('@')[0]);
   };
 
   return (
@@ -143,6 +177,14 @@ export default ({ navigation }) => {
             text="Connect FaceBook"
           />
         </FBContainer>
+        <GoogleContainer>
+          <AuthButton
+            bgColor={'#EE1922'}
+            loading={false}
+            onPress={googleLogin}
+            text="Connect Google"
+          />
+        </GoogleContainer>
       </View>
     </TouchableWithoutFeedback>
   );
