@@ -20,10 +20,10 @@ SignMeUp: {
 
 const AuthNavigation = createStackNavigator(
   {
-    Login,
-    Confirm,
     AuthHome,
-    SignUp
+    SignUp,
+    Login,
+    Confirm
   },
   {
     headerMode: 'none'

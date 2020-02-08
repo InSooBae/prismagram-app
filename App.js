@@ -26,6 +26,7 @@ export default function App() {
   //유저가 로그아웃했는지 알려고 null은 로그아웃했는지 체크 x false는 로그아웃 true는 로그인
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const preLoad = async () => {
+    await AsyncStorage.clear();
     try {
       //처음 icon의 font를 load
       await Font.loadAsync({
