@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import { TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { useMutation } from '@apollo/react-hooks';
 import AuthButton from '../../components/AuthButton';
-import { LOG_IN, CREATE_ACCOUNT } from './AuthQueries';
+import { CREATE_ACCOUNT } from './AuthQueries';
 import AuthInput from '../../components/AuthInput';
 import useInput from '../../hooks/useInput';
+import * as Facebook from 'expo-facebook';
 
 const View = styled.View`
   justify-content: center;
@@ -14,6 +15,14 @@ const View = styled.View`
 `;
 
 const Text = styled.Text``;
+
+const FBContainer = styled.View`
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top-width: 1px;
+  border-color: ${props => props.theme.lightGreyColor};
+  border-style: solid;
+`;
 
 export default ({ navigation }) => {
   const fNameInput = useInput('');
@@ -64,6 +73,41 @@ export default ({ navigation }) => {
       setLoading(false);
     }
   };
+
+  const fbLogin = async () => {
+    try {
+      setLoading(true);
+      //702792976920597 appId in faceBook appId를 이용해 페이스북에 로그인 요청을 하면 ,tpye에 성공or실패/토큰이 전달됨
+      await Facebook.initializeAsync('702792976920597');
+      const { type, token } = await Facebook.logInWithReadPermissionsAsync({
+        permissions: ['public_profile', 'email']
+      });
+      if (type === 'success') {
+        //type이 success면 fetch함수를 이용해 token이 입력된 api주소에 요청 아래 주소가 페이스북api
+        const response = await fetch(
+          `https://graph.facebook.com/me?access_token=${token}&fields=id,first_name,last_name,email,name`
+        );
+        //fetch는 결과물로 json도 전달해줌.
+        const { email, first_name, last_name, name } = await response.json();
+        if (email !== undefined) {
+          emailInput.setValue(email);
+        }
+        fNameInput.setValue(first_name);
+        lNameInput.setValue(last_name);
+        userNameInput.setValue(email.split('@')[0]);
+        setLoading(false);
+        console.log(email, first_name, last_name);
+
+        Alert.alert('Logged in!', `Hi ${name}!`);
+      } else {
+        // type === 'cancel'
+      }
+    } catch ({ message }) {
+      alert(`Facebook Login Error: ${message}`);
+    }
+    setLoading(false);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View>
@@ -91,6 +135,14 @@ export default ({ navigation }) => {
           autoCorrect={false}
         />
         <AuthButton loading={loading} onPress={handleSignUp} text="Sign Up" />
+        <FBContainer>
+          <AuthButton
+            bgColor={'#2D4DA7'}
+            loading={false}
+            onPress={fbLogin}
+            text="Connect FaceBook"
+          />
+        </FBContainer>
       </View>
     </TouchableWithoutFeedback>
   );
