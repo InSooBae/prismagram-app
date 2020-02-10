@@ -1,42 +1,128 @@
 import React from 'react';
-import { Image } from 'react-native';
+import { Image, Platform } from 'react-native';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import Swiper from 'react-native-swiper';
+import { Ionicons } from '@expo/vector-icons';
+import constants from '../constants';
 
-const Container = styled.View``;
+const Container = styled.View`
+  background: #fffffc;
+`;
+
 const Header = styled.View`
   padding: 15px;
   flex-direction: row;
   align-items: center;
 `;
+
 const Touchable = styled.TouchableOpacity``;
+
 const HeaderUserContainer = styled.View`
   margin-left: 10px;
 `;
+
 const Bold = styled.Text`
-  font-weight: 500;
+  font-weight: 700;
 `;
+
 const Location = styled.Text`
   font-size: 12px;
 `;
 
-const Post = ({ user, location }) => {
+const IconsContainer = styled.View`
+  flex-direction: row;
+  margin-bottom: 5px;
+`;
+
+const IconContainer = styled.View`
+  margin-right: 10px;
+`;
+
+const InfoContainer = styled.View`
+  padding: 10px;
+`;
+
+const CommentCount = styled.Text`
+  opacity: 0.5;
+  font-size: 12px;
+`;
+
+const Caption = styled.Text`
+  margin: 3px 0px;
+`;
+//files가 없을때 대비 (default value 빈 배열 )
+const Post = ({
+  user,
+  location,
+  files = [],
+  likeCount,
+  caption,
+  comments = []
+}) => {
   return (
     <Container>
-      <Header>
+      <InfoContainer>
+        <Header>
+          <Touchable>
+            <Image
+              style={{ height: 40, width: 40, borderRadius: 20 }}
+              source={{ uri: user.avatar }}
+            />
+          </Touchable>
+          <Touchable>
+            <HeaderUserContainer>
+              <Bold>{user.userName}</Bold>
+              <Location>{location}</Location>
+            </HeaderUserContainer>
+          </Touchable>
+        </Header>
+        <Swiper
+          style={{ height: constants.height / 2.5 }}
+          paginationStyle={{ position: 'absolute', bottom: -25 }}
+          dotStyle={{ width: 4, height: 4 }}
+          activeDotStyle={{ width: 4, height: 4 }}
+        >
+          {files.map(file => (
+            //react-native에서는 네트워크의 이미지를 보여주기 위해선 이미지의 높이를 지정해줘야함
+            <Image
+              style={{ width: constants.width, height: constants.height / 2.5 }}
+              key={file.id}
+              source={{ uri: file.url }}
+            />
+          ))}
+        </Swiper>
+        <IconsContainer>
+          <IconContainer>
+            <Touchable>
+              <Ionicons
+                size={28}
+                name={
+                  Platform.OS === 'ios' ? 'ios-heart-empty' : 'md-heart-empty'
+                }
+              />
+            </Touchable>
+          </IconContainer>
+          <IconContainer>
+            <Touchable>
+              <Ionicons
+                size={28}
+                name={Platform.OS === 'ios' ? 'ios-text' : 'md-text'}
+              />
+            </Touchable>
+          </IconContainer>
+        </IconsContainer>
         <Touchable>
-          <Image
-            style={{ height: 40, width: 40, borderRadius: 20 }}
-            source={{ uri: user.avatar }}
-          />
+          <Bold>{likeCount === 1 ? '1 like' : `${likeCount} likes`}</Bold>
         </Touchable>
+
+        <Caption>
+          <Bold>{user.userName}</Bold> {caption}
+        </Caption>
         <Touchable>
-          <HeaderUserContainer>
-            <Bold>{user.userName}</Bold>
-            <Location>{location}</Location>
-          </HeaderUserContainer>
+          <CommentCount>See all {comments.length} comments</CommentCount>
         </Touchable>
-      </Header>
+      </InfoContainer>
     </Container>
   );
 };
