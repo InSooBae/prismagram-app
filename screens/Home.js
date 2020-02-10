@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { FlatList, RefreshControl } from 'react-native';
+import { FlatList, RefreshControl, ScrollView } from 'react-native';
 import styled from 'styled-components';
-import Loader from '../components/Loader';
-import { gql, from } from 'apollo-boost';
+import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
+import Loader from '../components/Loader';
+import Post from '../components/Post';
+
+//react-native-web은 react-native 로 코드를 작성 모든 View는 div로 바뀜
 
 const FEED_QUERY = gql`
   {
@@ -63,12 +66,18 @@ export default () => {
   };
   console.log(loading, data);
   return (
-    <FlatList
+    <ScrollView
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={refresh} />
       }
     >
-      {loading ? <Loader /> : <Text>HELLO</Text>}
-    </FlatList>
+      {loading ? (
+        <Loader />
+      ) : (
+        data &&
+        data.seeFeed &&
+        data.seeFeed.map(post => <Post key={post.id} {...post} />)
+      )}
+    </ScrollView>
   );
 };
