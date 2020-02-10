@@ -62,60 +62,56 @@ const Post = ({
 }) => {
   return (
     <Container>
+      <Header>
+        <Touchable>
+          <Image
+            style={{ height: 40, width: 40, borderRadius: 20 }}
+            source={{ uri: user.avatar }}
+          />
+        </Touchable>
+        <Touchable>
+          <HeaderUserContainer>
+            <Bold>{user.userName}</Bold>
+            <Location>{location}</Location>
+          </HeaderUserContainer>
+        </Touchable>
+      </Header>
+      <Swiper
+        showsPagination={false}
+        style={{ height: constants.height / 2.5 }}
+      >
+        {files.map(file => (
+          <Image
+            style={{ width: constants.width, height: constants.height / 2.5 }}
+            key={file.id}
+            source={{ uri: file.url }}
+          />
+        ))}
+      </Swiper>
       <InfoContainer>
-        <Header>
-          <Touchable>
-            <Image
-              style={{ height: 40, width: 40, borderRadius: 20 }}
-              source={{ uri: user.avatar }}
-            />
-          </Touchable>
-          <Touchable>
-            <HeaderUserContainer>
-              <Bold>{user.userName}</Bold>
-              <Location>{location}</Location>
-            </HeaderUserContainer>
-          </Touchable>
-        </Header>
-        <Swiper
-          style={{ height: constants.height / 2.5 }}
-          paginationStyle={{ position: 'absolute', bottom: -25 }}
-          dotStyle={{ width: 4, height: 4 }}
-          activeDotStyle={{ width: 4, height: 4 }}
-        >
-          {files.map(file => (
-            //react-native에서는 네트워크의 이미지를 보여주기 위해선 이미지의 높이를 지정해줘야함
-            <Image
-              style={{ width: constants.width, height: constants.height / 2.5 }}
-              key={file.id}
-              source={{ uri: file.url }}
-            />
-          ))}
-        </Swiper>
         <IconsContainer>
-          <IconContainer>
-            <Touchable>
+          <Touchable>
+            <IconContainer>
               <Ionicons
                 size={28}
                 name={
                   Platform.OS === 'ios' ? 'ios-heart-empty' : 'md-heart-empty'
                 }
               />
-            </Touchable>
-          </IconContainer>
-          <IconContainer>
-            <Touchable>
+            </IconContainer>
+          </Touchable>
+          <Touchable>
+            <IconContainer>
               <Ionicons
                 size={28}
                 name={Platform.OS === 'ios' ? 'ios-text' : 'md-text'}
               />
-            </Touchable>
-          </IconContainer>
+            </IconContainer>
+          </Touchable>
         </IconsContainer>
         <Touchable>
           <Bold>{likeCount === 1 ? '1 like' : `${likeCount} likes`}</Bold>
         </Touchable>
-
         <Caption>
           <Bold>{user.userName}</Bold> {caption}
         </Caption>
