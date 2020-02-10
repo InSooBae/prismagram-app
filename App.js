@@ -45,12 +45,34 @@ export default function App() {
         //웹사이트의 local storage랑 비슷함 app의 예전 복사본을 찾으면 cache로 다시 그걸 넣음
         storage: AsyncStorage
       });
+
       // 다음으로 apollo client를 persist한 캐시와 함께 만들고 apolloClientOptions의 option들도 보냄
       // Continue setting up Apollo as usual. ApolloClient는 옵션이 많음 apollo.js에서 설정할예정
       const client = new ApolloClient({
         cache,
+        //요청할때마다 이함수가 실행하게됨
+        request: async operation => {
+          //아직 토큰이 없어서 생성
+          const token = await AsyncStorage.getItem('jwt');
+          //operation으로 할수있는게 많고 operation.setContext는 operation의 context를 조절하는 함수임
+          return operation.setContext({
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        },
         ...apolloClientOptions
       });
+      /*
+      --오류점--
+      app.js가 mount될때에만 토큰을 생성하고 있어서 문제가 발생할수있다.-> 토큰이 app.js에 mount시에만 토큰생성
+      로그인 할때는 app.js가 다시 mount 되지 않아서 토큰을 새로 계산하지 않음 앱이 새로 시작될때만 토큰을 확인함
+      */
+      /*
+      headers: {
+        Authorization: `Bearer ${token}`
+      } 
+      위처럼 로그인 할때 이런 에러를 고치기 위해 headers 대신 request(함수. 이함수는 operation이라는 인자 입력됨)를 사용
+      request가 리턴하는 값은 요청마다 추가됨. 이함수가 매 요청마다 호출됨(매 요청을 중간에 가로챔)
+        */
 
       const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
       if (!isLoggedIn || isLoggedIn === 'false') {
