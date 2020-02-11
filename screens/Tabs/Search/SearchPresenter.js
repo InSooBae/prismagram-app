@@ -4,12 +4,15 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
+import Loader from '../../../components/Loader';
+import SquarePhoto from '../../../components/SquarePhoto';
 
 export const SEARCH = gql`
   query search($term: String!) {
     searchPost(term: $term) {
       id
       files {
+        id
         url
       }
       likeCount
@@ -26,7 +29,9 @@ const SearchPresenter = ({ term, shouldFetch }) => {
       term
     },
     //언제 쿼리를 조회하지 않고 넘길지 설정
-    skip: !shouldFetch
+    skip: !shouldFetch,
+    //검색 결과가 항상 캐시에 저장되지 않도록 fetchPolicy로 설정
+    fetchPolicy: 'network-only'
   });
   const onRefresh = async () => {
     try {
@@ -43,7 +48,15 @@ const SearchPresenter = ({ term, shouldFetch }) => {
       refreshControl={
         <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
       }
-    ></ScrollView>
+    >
+      {loading ? (
+        <Loader />
+      ) : (
+        data &&
+        data.searchPost &&
+        data.searchPost.map(post => <SquarePhoto key={post.id} {...post} />)
+      )}
+    </ScrollView>
   );
 };
 

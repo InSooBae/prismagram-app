@@ -1,41 +1,51 @@
 import React from 'react';
+import { View } from 'react-native';
+import { Platform } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
-import { Image, View, Platform } from 'react-native';
-import Home from '../screens/Home';
-import Notifications from '../screens/Notifications';
-import Profile from '../screens/Profile';
-import Search from '../screens/SearchContainer';
+import Detail from '../screens/Detail';
+import Home from '../screens/Tabs/Home';
+import Search from '../screens/Tabs/Search';
+import Notifications from '../screens/Tabs/Notifications';
+import Profile from '../screens/Tabs/Profile';
 import MessagesLink from '../components/MessagesLink';
 import NavIcon from '../components/NavIcon';
 import { stackStyles } from './config';
+import styles from '../styles';
 
-//TabNavigator에 각 탭마다 StackNavigator효과를 주는일 customconfig에는설정들
 const stackFactory = (initialRoute, customConfig) =>
-  createStackNavigator({
-    InitialRoute: {
-      screen: initialRoute,
-      navigationOptions: {
-        ...customConfig,
+  createStackNavigator(
+    {
+      InitialRoute: {
+        screen: initialRoute,
+        navigationOptions: {
+          ...customConfig
+        }
+      },
+      Detail: {
+        screen: Detail,
+        navigationOptions: {
+          headerTintColor: styles.blackColor,
+          title: 'Photo',
+          headerBackTitleVisible: false
+        }
+      }
+    },
+    {
+      defaultNavigationOptions: {
         headerStyle: { ...stackStyles }
       }
     }
-  });
+  );
 
 export default createBottomTabNavigator(
   {
     Home: {
       screen: stackFactory(Home, {
+        title: 'Home',
         headerRight: () => <MessagesLink />,
-        headerTitle: () => (
-          <Image
-            style={{ height: 50 }}
-            resizeMode="contain"
-            source={require('../assets/HYU_logo1.png')}
-          />
-        )
+        headerTitle: () => <NavIcon name="logo-instagram" size={36} />
       }),
-      //여기가 네비게이션의 스크린 옵션
       navigationOptions: {
         tabBarIcon: ({ focused }) => (
           <NavIcon
@@ -64,14 +74,19 @@ export default createBottomTabNavigator(
         tabBarIcon: ({ focused }) => (
           <NavIcon
             focused={focused}
-            size={36}
-            name={Platform.OS === 'ios' ? 'ios-add' : 'md-add'}
+            name={
+              Platform.OS === 'ios'
+                ? 'ios-add-circle-outline'
+                : 'md-add-circle-outline'
+            }
           />
         )
       }
     },
     Notifications: {
-      screen: stackFactory(Notifications, { title: 'Notifications' }),
+      screen: stackFactory(Notifications, {
+        title: 'Notifications'
+      }),
       navigationOptions: {
         tabBarIcon: ({ focused }) => (
           <NavIcon
@@ -90,7 +105,9 @@ export default createBottomTabNavigator(
       }
     },
     Profile: {
-      screen: stackFactory(Profile, { title: 'Profile' }),
+      screen: stackFactory(Profile, {
+        title: 'Profile'
+      }),
       navigationOptions: {
         tabBarIcon: ({ focused }) => (
           <NavIcon
@@ -102,11 +119,10 @@ export default createBottomTabNavigator(
     }
   },
   {
-    initialRouteName: 'Search',
     tabBarOptions: {
       showLabel: false,
       style: {
-        ...stackStyles
+        backgroundColor: '#FAFAFA'
       }
     }
   }

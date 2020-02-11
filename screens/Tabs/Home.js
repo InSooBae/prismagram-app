@@ -3,40 +3,18 @@ import { FlatList, RefreshControl, ScrollView } from 'react-native';
 import styled from 'styled-components';
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks';
-import Loader from '../components/Loader';
-import Post from '../components/Post';
-
+import Loader from '../../components/Loader';
+import Post from '../../components/Post';
+import { POST_FRAGMENT } from '../../fragments';
 //react-native-web은 react-native 로 코드를 작성 모든 View는 div로 바뀜
 
 const FEED_QUERY = gql`
   {
     seeFeed {
-      id
-      location
-      caption
-      user {
-        id
-        avatar
-        userName
-      }
-      files {
-        id
-        url
-      }
-      likeCount
-      isLiked
-      comments {
-        id
-        text
-        user {
-          id
-          userName
-        }
-        createdAt
-      }
-      createdAt
+      ...PostParts
     }
   }
+  ${POST_FRAGMENT}
 `;
 
 const View = styled.View`
