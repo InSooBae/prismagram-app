@@ -22,7 +22,9 @@ export default () => {
   };
   const getPhotos = async () => {
     try {
-      const { assets } = await MediaLibrary.getAssetsAsync();
+      const { assets } = await MediaLibrary.getAssetsAsync({
+        sortBy: MediaLibrary.SortBy.creationTime
+      });
       const [firstPhoto] = assets;
       setSelected(firstPhoto);
       setAllPhotos(assets);
