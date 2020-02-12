@@ -5,14 +5,29 @@ import * as MediaLibrary from 'expo-media-library';
 import Loader from '../../components/Loader';
 import { Image, ScrollView, TouchableOpacity } from 'react-native';
 import constants from '../../constants';
-
+import styles from '../../styles';
 const View = styled.View`
   flex: 1;
 `;
 
-const Text = styled.Text``;
+const Button = styled.TouchableOpacity`
+  width: 100px;
+  height: 30px;
+  position: absolute;
+  right: 5px;
+  top: 15px;
+  background-color: ${styles.blueColor};
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+`;
 
-export default () => {
+const Text = styled.Text`
+  color: white;
+  font-weight: 600;
+`;
+
+export default ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [hasPermission, setHasPermission] = useState(false);
   const [selected, setSelected] = useState();
@@ -28,26 +43,26 @@ export default () => {
       const [firstPhoto] = assets;
       setSelected(firstPhoto);
       setAllPhotos(assets);
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      console.log(e);
     } finally {
       setLoading(false);
     }
   };
   const askPermission = async () => {
-    //나에게 권한요청. MediaLibrary가 필요로 하는 permissions.CAMERA_ROLL을 요청함
-    //Object{"expires":"never","status":"granted"} -> ACCESS
-    //처음 권한 안할시 하라는 표시 해주는게 좋다. 아직 안함
     try {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status === 'granted') {
         setHasPermission(true);
         getPhotos();
       }
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      console.log(e);
       setHasPermission(false);
     }
+  };
+  const handleSelected = () => {
+    navigation.navigate('Upload', { photo: selected });
   };
   useEffect(() => {
     askPermission();
@@ -61,16 +76,18 @@ export default () => {
           {hasPermission ? (
             <>
               <Image
-                style={{
-                  width: constants.width,
-                  height: constants.height / 2
-                }}
+                style={{ width: constants.width, height: constants.height / 2 }}
                 source={{ uri: selected.uri }}
               />
+
+              <Button onPress={handleSelected}>
+                <Text>Select Photo</Text>
+              </Button>
+
               <ScrollView
                 contentContainerStyle={{
-                  flexWrap: 'wrap',
-                  flexDirection: 'row'
+                  flexDirection: 'row',
+                  flexWrap: 'wrap'
                 }}
               >
                 {allPhotos.map(photo => (
@@ -79,7 +96,6 @@ export default () => {
                     onPress={() => changeSelected(photo)}
                   >
                     <Image
-                      key={photo.id}
                       source={{ uri: photo.uri }}
                       style={{
                         width: constants.width / 3,
@@ -91,9 +107,7 @@ export default () => {
                 ))}
               </ScrollView>
             </>
-          ) : (
-            'Opps'
-          )}
+          ) : null}
         </View>
       )}
     </View>
