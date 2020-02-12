@@ -12,6 +12,7 @@ import MessagesLink from '../components/MessagesLink';
 import NavIcon from '../components/NavIcon';
 import { stackStyles } from './config';
 import styles from '../styles';
+import UserDetail from '../screens/UserDetail';
 
 const stackFactory = (initialRoute, customConfig) =>
   createStackNavigator(
@@ -25,14 +26,21 @@ const stackFactory = (initialRoute, customConfig) =>
       Detail: {
         screen: Detail,
         navigationOptions: {
-          headerTintColor: styles.blackColor,
-          title: 'Photo',
-          headerBackTitleVisible: false
+          title: 'Photo'
         }
+      },
+      UserDetail: {
+        screen: UserDetail,
+        navigationOptions: ({ navigation }) => ({
+          title: navigation.getParam('userName')
+        })
       }
     },
     {
       defaultNavigationOptions: {
+        headerBackTitle: null,
+        headerBackTitleVisible: false,
+        headerTintColor: styles.blackColor,
         headerStyle: { ...stackStyles }
       }
     }
@@ -119,6 +127,7 @@ export default createBottomTabNavigator(
     }
   },
   {
+    initialRouteName: 'Profile',
     tabBarOptions: {
       showLabel: false,
       style: {
