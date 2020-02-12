@@ -9,8 +9,8 @@ import { stackStyles } from './config';
 //MainNavigation도 stackNavigtor라서 다른 헤더를 가지고있음 이게 밖에있는 PhotoNavigation의 header
 const MainNavigation = createStackNavigator(
   {
-    TabNavigation,
     PhotoNavigation,
+    TabNavigation,
     MessageNavigation
   },
   {
