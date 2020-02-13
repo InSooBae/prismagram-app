@@ -6,6 +6,19 @@ import useInput from '../../hooks/useInput';
 import styles from '../../styles';
 import constants from '../../constants';
 import AuthButton from '../../components/AuthButton';
+import { gql } from 'apollo-boost';
+import { useMutation } from '@apollo/react-hooks';
+import { FEED_QUERY } from '../Tabs/Home';
+
+const UPLOAD = gql`
+  mutation upload($caption: String!, $files: [String!]!, $location: String) {
+    upload(caption: $caption, files: $files, location: $location) {
+      id
+      caption
+      location
+    }
+  }
+`;
 
 const View = styled.View`
   flex: 1;
@@ -43,16 +56,16 @@ const Text = styled.Text`
 
 export default ({ navigation }) => {
   const [loading, setIsLoading] = useState(false);
-  const [fileUrl, setFileUrl] = useState('');
-
   const photo = navigation.getParam('photo');
-  const captionInput = useInput('');
-  const locationInput = useInput('');
+  const captionInput = useInput('dfdf');
+  const locationInput = useInput('dfdfd');
+  const [uploadMutation] = useMutation(UPLOAD, {
+    refetchQueries: () => [{ query: FEED_QUERY }]
+  });
   const handleSubmit = async () => {
     if (captionInput.value === '' || locationInput.value === '') {
       Alert.alert('All fields are required');
     }
-    //Like Form처럼 행동함
     const formData = new FormData();
     const name = photo.filename;
     const [, type] = name.split('.');
@@ -62,6 +75,7 @@ export default ({ navigation }) => {
       uri: photo.uri
     });
     try {
+      setIsLoading(true);
       const {
         data: { location }
       } = await axios.post('http://localhost:4000/api/upload', formData, {
@@ -69,10 +83,23 @@ export default ({ navigation }) => {
           'content-type': 'multipart/form-data'
         }
       });
-      setFileUrl(location);
-      console.log(location);
-    } catch (error) {
-      Alert.alert("Can't upload", 'Try later');
+
+      const {
+        data: { upload }
+      } = await uploadMutation({
+        variables: {
+          files: [location],
+          caption: captionInput.value,
+          location: locationInput.value
+        }
+      });
+      if (upload.id) {
+        navigation.navigate('TabNavigation');
+      }
+    } catch (e) {
+      Alert.alert('Cant upload', 'Try later');
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
